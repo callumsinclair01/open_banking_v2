@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
             .insert({
               user_id: user.id,
               bank_account_id: acct.accountId,
-              bank_id: 'ANZ', // TODO: derive from consent/bank context
+              bank_id: consent.bank_id as any,
               account_type: (acct.accountType as any) || 'transactional',
               account_name: acct.accountName,
               account_number: JSON.stringify({ ciphertext: 'NA', iv: '', tag: '' }),
