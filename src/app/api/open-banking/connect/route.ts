@@ -49,6 +49,14 @@ export async function POST(request: NextRequest) {
     // Generate state parameter for OAuth flow
     const state = generateSecureRandom(32);
 
+    // Persist state for callback verification
+    await supabase.from('open_banking_oauth_state').insert({
+      state,
+      user_id: user.id,
+      bank_id: bankId,
+      permissions,
+    });
+
     const authUrl = openBankingService.generateAuthUrl(
       bankId as BankProvider,
       state,
