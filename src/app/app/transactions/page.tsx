@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,12 +18,13 @@ interface Txn {
   type: 'debit' | 'credit';
 }
 
-async function fetchTransactions(token?: string) {
-  const res = await fetch('/api/transactions', {
+async function fetchTransactions(token?: string, params?: Record<string, string>) {
+  const qs = new URLSearchParams(params || {}).toString();
+  const res = await fetch(`/api/transactions${qs ? `?${qs}` : ''}`, {
     headers: token ? { 'x-supabase-auth': token } : undefined,
   });
   if (!res.ok) throw new Error('Failed to load transactions');
-  return (await res.json()) as { transactions: Txn[] };
+  return (await res.json()) as { transactions: Txn[]; pagination?: { page: number; limit: number; total: number } };
 }
 
 async function syncTransactions(token?: string) {
@@ -36,14 +38,27 @@ async function syncTransactions(token?: string) {
 export default function TransactionsPage() {
   const { loading } = useAuth();
   const queryClient = useQueryClient();
+
+  const [page, setPage] = React.useState(1);
+  const [type, setType] = React.useState<string>('');
+  const [from, setFrom] = React.useState<string>('');
+  const [to, setTo] = React.useState<string>('');
+
+  const params: Record<string, string> = {};
+  if (page) params.page = String(page);
+  if (type) params.type = type;
+  if (from) params.from = from;
+  if (to) params.to = to;
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['transactions'],
-    queryFn: fetchTransactions,
+    queryKey: ['transactions', params],
+    queryFn: () => fetchTransactions(undefined, params),
     enabled: !loading,
+    keepPreviousData: true,
   });
 
   const mutation = useMutation({
-    mutationFn: syncTransactions,
+    mutationFn: () => syncTransactions(),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions'] }),
   });
 
@@ -55,6 +70,26 @@ export default function TransactionsPage() {
           <RefreshCcw className={`h-4 w-4 mr-2 ${mutation.isLoading ? 'animate-spin' : ''}`} />
           Sync
         </Button>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div>
+          <label className="text-xs text-gray-600">Type</label>
+          <select className="border rounded px-2 py-1 ml-2" value={type} onChange={(e) => { setPage(1); setType(e.target.value); }}>
+            <option value="">All</option>
+            <option value="credit">Incoming</option>
+            <option value="debit">Outgoing</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-xs text-gray-600">From</label>
+          <input type="date" className="border rounded px-2 py-1 ml-2" value={from} onChange={(e) => { setPage(1); setFrom(e.target.value); }} />
+        </div>
+        <div>
+          <label className="text-xs text-gray-600">To</label>
+          <input type="date" className="border rounded px-2 py-1 ml-2" value={to} onChange={(e) => { setPage(1); setTo(e.target.value); }} />
+        </div>
       </div>
 
       {isLoading ? (
@@ -87,6 +122,15 @@ export default function TransactionsPage() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between pt-4">
+              <Button variant="outline" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Previous</Button>
+              <div className="text-xs text-gray-500">
+                Page {data?.pagination?.page || page} • {data?.pagination?.total || 0} total
+              </div>
+              <Button variant="outline" disabled={(data?.transactions.length || 0) < (data?.pagination?.limit || 50)} onClick={() => setPage((p) => p + 1)}>Next</Button>
             </div>
           </CardContent>
         </Card>
