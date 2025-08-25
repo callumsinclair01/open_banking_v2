@@ -13,3 +13,14 @@ export function createServerSupabase(accessToken?: string) {
   return createClient<Database>(url, anon, { global: { headers } });
 }
 
+/**
+ * Create an admin supabase client using the service role key.
+ * Only use on the server in trusted routes.
+ */
+export function createAdminSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!service) throw new Error('SUPABASE_SERVICE_ROLE_KEY missing on server');
+  return createClient<Database>(url, service);
+}
+

@@ -29,13 +29,43 @@ export async function POST(req: NextRequest) {
     try {
       const accounts = await openBankingService.getAccounts(accessToken);
       for (const acct of accounts) {
+        // Ensure account exists in our DB and get internal account UUID
+        const { data: existingAccount } = await supabase
+          .from('accounts')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('bank_account_id', acct.accountId)
+          .single();
+
+        let accountId = existingAccount?.id as string | undefined;
+        if (!accountId) {
+          const { data: insertedAccount, error: accErr } = await supabase
+            .from('accounts')
+            .insert({
+              user_id: user.id,
+              bank_account_id: acct.accountId,
+              bank_id: 'ANZ', // TODO: derive from consent/bank context
+              account_type: (acct.accountType as any) || 'transactional',
+              account_name: acct.accountName,
+              account_number: JSON.stringify({ ciphertext: 'NA', iv: '', tag: '' }),
+              current_balance: acct.currentBalance,
+              available_balance: acct.availableBalance ?? null,
+              currency: acct.currency || 'NZD',
+              is_active: true,
+            })
+            .select('id')
+            .single();
+          if (accErr) throw accErr;
+          accountId = insertedAccount!.id;
+        }
+
         const txns = await openBankingService.getTransactions(accessToken, acct.accountId);
         for (const t of txns) {
           const { error } = await supabase
             .from('transactions')
             .upsert({
               user_id: user.id,
-              account_id: acct.accountId, // consider mapping to internal accounts table later
+              account_id: accountId!,
               bank_transaction_id: t.transactionId,
               amount: t.amount,
               currency: t.currency,
