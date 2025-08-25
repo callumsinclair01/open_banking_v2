@@ -85,6 +85,24 @@ export class OpenBankingService {
   }
 
   /**
+   * Compatibility wrapper to match callback expectations
+   */
+  async exchangeCodeForTokens(bankId: BankProvider, code: string): Promise<{
+    access_token: string;
+    refresh_token: string | null;
+    expires_in: number;
+    consent_id: string;
+  }> {
+    const res = await this.exchangeCodeForToken(code, '');
+    return {
+      access_token: res.accessToken,
+      refresh_token: res.refreshToken || null,
+      expires_in: res.expiresIn,
+      consent_id: res.consentId,
+    };
+  }
+
+  /**
    * Refresh access token using refresh token
    */
   async refreshAccessToken(refreshToken: string): Promise<{
@@ -198,7 +216,7 @@ const openBankingService = new OpenBankingService({
   clientId: process.env.OPEN_BANKING_CLIENT_ID!,
   clientSecret: process.env.OPEN_BANKING_CLIENT_SECRET!,
   redirectUri: process.env.OPEN_BANKING_REDIRECT_URI!,
-  baseUrl: process.env.NODE_ENV === 'production' 
+  baseUrl: process.env.NODE_ENV === 'production'
     ? process.env.OPEN_BANKING_PRODUCTION_URL!
     : process.env.OPEN_BANKING_SANDBOX_URL!,
 });
