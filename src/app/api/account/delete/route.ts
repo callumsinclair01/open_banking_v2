@@ -5,9 +5,13 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = createAdminSupabase();
 
-    // Accept a short-lived token in header to identify user to delete
-    const userId = req.headers.get('x-user-id');
-    if (!userId) return NextResponse.json({ error: 'Missing user id' }, { status: 400 });
+    // Identify the authenticated user via x-supabase-auth
+    const token = req.headers.get('x-supabase-auth') || undefined;
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const userRes = await supabase.auth.getUser(token);
+    if (userRes.error || !userRes.data.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const userId = userRes.data.user.id;
 
     // Delete in an order that respects FKs (transactions -> accounts -> categories/budgets -> consents -> profile)
     const queries = [

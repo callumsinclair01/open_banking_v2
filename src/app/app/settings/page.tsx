@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function SettingsPage() {
@@ -56,7 +55,8 @@ export default function SettingsPage() {
     if (!confirm('This will permanently delete your account and data. Are you sure?')) return;
     setDeleting(true);
     try {
-      await fetch('/api/account/delete', { method: 'POST' });
+      const { getAuthHeaders } = await import('@/lib/client-auth');
+      await fetch('/api/account/delete', { method: 'POST', headers: await getAuthHeaders() });
       window.location.href = '/';
     } finally {
       setDeleting(false);
@@ -92,7 +92,7 @@ export default function SettingsPage() {
               <option value="feature">Feature request</option>
             </select>
           </div>
-          <Textarea placeholder="Your message" value={feedback} onChange={(e) => setFeedback(e.target.value)} />
+          <textarea className="border rounded px-2 py-1 w-full h-24" placeholder="Your message" value={feedback} onChange={(e) => setFeedback(e.target.value)} />
           <Button onClick={submitFeedback} disabled={submittingFeedback || !feedback.trim()}>Submit</Button>
         </CardContent>
       </Card>
