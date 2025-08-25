@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: 'Secure personal finance management with Open Banking NZ integration',
   keywords: ['personal finance', 'budgeting', 'open banking', 'new zealand'],
   authors: [{ name: 'PocketSmith Competitor Team' }],
-  viewport: 'width=device-width, initial-scale=1',
+  // viewport moved to export const viewport
   robots: 'index, follow',
   openGraph: {
     title: 'PocketSmith Competitor - Personal Finance Management',
@@ -20,6 +20,12 @@ export const metadata: Metadata = {
     locale: 'en_NZ',
   },
 };
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 
 export default function RootLayout({
   children,
