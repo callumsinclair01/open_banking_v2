@@ -61,6 +61,14 @@ export default function AnalyticsPage() {
                 <Bar dataKey="income" fill="#16a34a" name="Income" />
                 <Bar dataKey="spending" fill="#dc2626" name="Spending" />
               </BarChart>
+      <div className="flex justify-end">
+        {data.isPremium ? (
+          <a className="text-sm underline" href={`/api/analytics/export?from=${encodeURIComponent(new Date(Date.now()-365*24*3600*1000).toISOString())}&to=${encodeURIComponent(new Date().toISOString())}`}>Download CSV</a>
+        ) : (
+          <div className="text-sm text-gray-500">Upgrade to Premium to export CSV</div>
+        )}
+      </div>
+
             </ResponsiveContainer>
           </div>
         </CardContent>
