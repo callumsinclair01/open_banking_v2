@@ -3,7 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
-import { BarChart2, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 
 interface Summary {
   isPremium: boolean;
@@ -49,9 +50,18 @@ export default function AnalyticsPage() {
           <CardDescription>Income vs Spending by month</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-40 flex items-center justify-center text-gray-500">
-            <BarChart2 className="h-6 w-6 mr-2" />
-            Placeholder chart — integrate Recharts later
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data.trend}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="income" fill="#16a34a" name="Income" />
+                <Bar dataKey="spending" fill="#dc2626" name="Spending" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
