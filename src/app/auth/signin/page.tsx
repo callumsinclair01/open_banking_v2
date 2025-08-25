@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Banknote, Eye, EyeOff } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -24,19 +24,18 @@ export default function SignInPage() {
     setIsLoading(true);
 
     try {
-      const result = await signIn('credentials', {
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        redirect: false,
       });
 
-      if (result?.error) {
+      if (error) {
         toast({
           title: 'Sign in failed',
-          description: 'Invalid email or password. Please try again.',
+          description: error.message || 'Invalid email or password. Please try again.',
           variant: 'destructive',
         });
-      } else {
+      } else if (data.user) {
         toast({
           title: 'Welcome back!',
           description: 'You have been signed in successfully.',

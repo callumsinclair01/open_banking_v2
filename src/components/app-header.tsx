@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -18,11 +18,11 @@ import { getInitials } from '@/lib/utils';
 import Link from 'next/link';
 
 export function AppHeader() {
-  const { data: session } = useSession();
+  const { user, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/' });
+  const handleSignOut = async () => {
+    await signOut();
   };
 
   return (
@@ -42,24 +42,17 @@ export function AppHeader() {
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
         <div className="flex flex-1 items-center">
           <h1 className="text-lg font-semibold text-gray-900">
-            Welcome back, {session?.user?.name?.split(' ')[0] || 'User'}!
+            Welcome back, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}!
           </h1>
         </div>
         <div className="flex items-center gap-x-4 lg:gap-x-6">
           {/* Subscription Badge */}
-          {session?.user?.subscriptionTier === 'premium' ? (
-            <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white">
+          <Link href="/app/settings/subscription">
+            <Badge variant="outline" className="hover:bg-primary hover:text-white cursor-pointer">
               <Crown className="h-3 w-3 mr-1" />
-              Premium
+              Upgrade
             </Badge>
-          ) : (
-            <Link href="/app/settings/subscription">
-              <Badge variant="outline" className="hover:bg-primary hover:text-white cursor-pointer">
-                <Crown className="h-3 w-3 mr-1" />
-                Upgrade
-              </Badge>
-            </Link>
-          )}
+          </Link>
 
           {/* Notifications */}
           <button
@@ -78,9 +71,9 @@ export function AppHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={session?.user?.image || ''} alt={session?.user?.name || ''} />
+                  <AvatarImage src={user?.user_metadata?.avatar_url || ''} alt={user?.user_metadata?.full_name || ''} />
                   <AvatarFallback>
-                    {getInitials(session?.user?.name || 'User')}
+                    {getInitials(user?.user_metadata?.full_name || user?.email || 'User')}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -88,9 +81,11 @@ export function AppHeader() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{session?.user?.name}</p>
+                  <p className="text-sm font-medium leading-none">
+                    {user?.user_metadata?.full_name || user?.email}
+                  </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {session?.user?.email}
+                    {user?.email}
                   </p>
                 </div>
               </DropdownMenuLabel>

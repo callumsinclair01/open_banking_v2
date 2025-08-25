@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +39,7 @@ const mockData = {
 };
 
 export default function DashboardPage() {
-  const { data: session } = useSession();
+  const { user } = useAuth();
   const netIncome = mockData.monthlyIncome - mockData.monthlyExpenses;
 
   return (
@@ -48,19 +48,17 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Good morning, {session?.user?.name?.split(' ')[0]}! 👋
+            Good morning, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}! 👋
           </h1>
           <p className="text-gray-600">Here's your financial overview for today.</p>
         </div>
         <div className="flex items-center space-x-3">
-          {session?.user?.subscriptionTier === 'free' && (
-            <Link href="/app/settings/subscription">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Upgrade to Premium
-              </Button>
-            </Link>
-          )}
+          <Link href="/app/settings/subscription">
+            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+              <PlusCircle className="h-4 w-4 mr-2" />
+              Upgrade to Premium
+            </Button>
+          </Link>
           <Link href="/app/settings/banks">
             <Button>
               <Building2 className="h-4 w-4 mr-2" />

@@ -27,10 +27,8 @@ A secure, modern personal finance management application built specifically for 
 - **Recharts** - Data visualization
 
 ### Backend
-- **Node.js** - Runtime environment
-- **Prisma** - Database ORM
-- **NextAuth.js** - Authentication
-- **Supabase** - PostgreSQL database with real-time features
+- **Supabase** - Complete backend solution with PostgreSQL, authentication, real-time features, and Row Level Security
+- **Node.js** - Runtime environment for API routes
 
 ### Security & Compliance
 - **OAuth 2.0** - Open Banking authentication
@@ -47,8 +45,7 @@ A secure, modern personal finance management application built specifically for 
 
 ### Prerequisites
 - Node.js 18+
-- PostgreSQL database
-- Supabase account
+- Supabase account (includes PostgreSQL database)
 - Stripe account
 - Open Banking NZ API credentials
 
@@ -111,15 +108,22 @@ ENCRYPTION_KEY="your-32-character-encryption-key"
 ```
 
 ### 4. Database Setup
+
+#### Option 1: Use Supabase Cloud (Recommended)
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Copy your project URL and anon key to `.env.local`
+3. Run the database migration:
 ```bash
-# Generate Prisma client
-npm run db:generate
+supabase db push
+```
+
+#### Option 2: Local Development
+```bash
+# Start local Supabase (requires Docker)
+npm run supabase:start
 
 # Push database schema
-npm run db:push
-
-# Or run migrations (for production)
-npm run db:migrate
+supabase db push
 ```
 
 ### 5. Development Server

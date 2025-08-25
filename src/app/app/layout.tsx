@@ -1,18 +1,35 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppHeader } from '@/components/app-header';
 
-export default async function AppLayout({
+export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
-  if (!session) {
-    redirect('/auth/signin');
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/signin');
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="spinner" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
