@@ -8,7 +8,7 @@ import { getUserFromRequest } from '@/lib/server-auth';
 import { createServerSupabase } from '@/lib/server-supabase';
 
 const connectSchema = z.object({
-  bankId: z.enum(['ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank']),
+  bankId: z.enum(['ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank', 'AKAHU']),
   permissions: z.array(z.string()).default(['account_info']),
 });
 

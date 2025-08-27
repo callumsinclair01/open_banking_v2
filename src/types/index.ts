@@ -46,7 +46,7 @@ export interface OpenBankingConsent {
 }
 
 // Bank provider types
-export type BankProvider = 'ANZ' | 'ASB' | 'BNZ' | 'Westpac' | 'Kiwibank';
+export type BankProvider = 'ANZ' | 'ASB' | 'BNZ' | 'Westpac' | 'Kiwibank' | 'AKAHU';
 
 export interface BankConnection {
   id: string;

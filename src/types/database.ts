@@ -340,7 +340,7 @@ export interface Database {
       transaction_type: 'debit' | 'credit'
       transaction_status: 'pending' | 'completed' | 'failed'
       consent_status: 'active' | 'expired' | 'revoked'
-      bank_provider: 'ANZ' | 'ASB' | 'BNZ' | 'Westpac' | 'Kiwibank'
+      bank_provider: 'ANZ' | 'ASB' | 'BNZ' | 'Westpac' | 'Kiwibank' | 'AKAHU'
     }
     CompositeTypes: {
       [_ in never]: never

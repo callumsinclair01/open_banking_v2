@@ -10,7 +10,7 @@ import { Building2, Link2, Lock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { getSubscriptionLimits } from '@/lib/utils';
 
-const BANKS = ['ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank'] as const;
+const BANKS = ['AKAHU', 'ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank'] as const;
 
 type Consent = {
   bank_id: typeof BANKS[number];
